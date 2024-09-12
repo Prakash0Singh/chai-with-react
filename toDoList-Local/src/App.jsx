@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { ToDoProvider } from './contexts';
+import ToDoForm from './components/ToDoForm';
+import ToDoItems from './components/ToDoItems';
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -23,6 +23,19 @@ function App() {
     setTodos((prev)=>prev.map( (prevTodo)=> prevTodo.id === id ? {...prevTodo,completed:!prevTodo.completed} :prevTodo ))
   }
 
+  useEffect(()=>{
+    const todos = JSON.parse(localStorage.getItem('todos'));
+
+    if (todos && todos.length) {
+      setTodos(todos);
+    }
+
+  },[])
+
+  useEffect(()=>{
+    localStorage.setItem('todos',JSON.stringify(todos))
+  },[todos])
+
   return (
     <ToDoProvider value={{todos,addTodo,updateTodo,deleteTodo,toggleComplete}}>
       <div className="bg-[#172842] min-h-screen py-8">
@@ -30,9 +43,17 @@ function App() {
           <h1 className="text-2xl font-bold text-center mb-8 mt-2">Manage Your Todos</h1>
           <div className="mb-4">
             {/* Todo form goes here */}
+            <ToDoForm/>
           </div>
           <div className="flex flex-wrap gap-y-3">
             {/*Loop and Add TodoItem here */}
+            {
+              todos.map((todo)=>(
+                <div className='w-full' key={todo.id}>
+                  <ToDoItems todo={todo} />
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>
